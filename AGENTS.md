@@ -2,7 +2,7 @@
 
 ## Scope
 
-`studio/` is a standalone Angular 20 application. Keep the frontend minimal and aligned to the FastAPI contract in `../app/schemas.py` and `../app/main.py`.
+`studio/` is a standalone Angular 20 application. Keep the frontend minimal and aligned to the FastAPI contract in the backend repository.
 
 ## Layer rules
 
