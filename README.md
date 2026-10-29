@@ -1,59 +1,60 @@
-# Ui
+# Studio frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.41.
+Frontend Angular 20 para o gerador de landing pages. A aplicação usa sessões HTTP-only gerenciadas pela API; o navegador envia cookies com `withCredentials` e não armazena tokens de acesso.
 
-## Development server
+## Pré-requisitos
 
-To start a local development server, run:
+- Node.js compatível com Angular 20
+- npm ou pnpm
+- Backend disponível em `http://localhost:8000` para desenvolvimento local
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Instalação e execução
 
 ```bash
-ng generate component component-name
+npm install
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Abra `http://localhost:4200/`.
+
+Durante o desenvolvimento, as requisições `/api` são encaminhadas pelo `proxy.conf.json` para `http://localhost:8000`. Assim, o frontend usa a mesma origem lógica e a sessão funciona sem configurar uma URL absoluta no código.
+
+## Variáveis de ambiente e URLs da API
+
+O frontend não lê um arquivo `.env` em tempo de execução. A URL da API é definida nos arquivos Angular de ambiente:
+
+| Arquivo | Configuração | Uso |
+| --- | --- | --- |
+| `src/environments/environment.development.ts` | `apiUrl: '/api/v1'` | Desenvolvimento local com proxy para `http://localhost:8000`. |
+| `src/environments/environment.ts` | `apiUrl: 'https://studio-backend-xbm6.onrender.com/api/v1'` | Build de produção. |
+| `proxy.conf.json` | `target: 'http://localhost:8000'` | Destino local das chamadas `/api` durante `ng serve`. |
+
+Para apontar o build de produção para outra API, altere `apiUrl` em `src/environments/environment.ts` antes do build. Não coloque `INTERNAL_API_TOKEN`, `OD_API_TOKEN`, senhas ou outras credenciais no frontend: a autenticação usa o cookie de sessão criado pelo backend.
+
+## Comandos
 
 ```bash
-ng generate --help
+npm start       # servidor de desenvolvimento
+npm run build   # build de produção
+npm test        # testes unitários
 ```
 
-## Building
-
-To build the project run:
+Com pnpm, os comandos equivalentes são:
 
 ```bash
-ng build
+pnpm install
+pnpm start
+pnpm build
+pnpm test
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Integração com o backend
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+O backend precisa estar em execução para login e geração:
 
 ```bash
-ng test
+cd ../backend
+docker compose up -d
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+O usuário da aplicação é criado no banco do backend. O frontend apenas envia o formulário de login para `/api/v1/auth/login` e mantém a sessão via cookie HTTP-only.
