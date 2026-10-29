@@ -14,6 +14,18 @@ export class ApiHttp {
     return this.http.get<T>(`${this.baseUrl}${path}`, { params: new HttpParams({ fromObject: query ?? {} }), context });
   }
 
+  getText(path: string, context?: HttpContext): Observable<string> {
+    return this.http.get(`${this.baseUrl}${path}`, { responseType: 'text', context });
+  }
+
+  put<T>(path: string, body: unknown, context?: HttpContext): Observable<T> {
+    return this.http.put<T>(`${this.baseUrl}${path}`, body, { context });
+  }
+
+  postForm<T>(path: string, body: FormData, context?: HttpContext): Observable<T> {
+    return this.http.post<T>(`${this.baseUrl}${path}`, body, { context });
+  }
+
   post<T>(path: string, body: unknown, context?: HttpContext): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${path}`, body, { context });
   }

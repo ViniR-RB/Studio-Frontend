@@ -7,6 +7,8 @@ export const routes: Routes = [
   { path: '', canActivate: [authGuard], loadComponent: () => import('./pages/app-shell.component').then((m) => m.AppShellComponent), children: [
     { path: '', pathMatch: 'full', redirectTo: 'pages' },
     { path: 'pages', loadComponent: () => import('./pages/pages-page.component').then((m) => m.PagesPageComponent) },
+    { path: 'pages/:slug', loadComponent: () => import('./pages/page-detail-page.component').then((m) => m.PageDetailPageComponent) },
+    { path: 'skills', loadComponent: () => import('./pages/skills-page.component').then((m) => m.SkillsPageComponent) },
   ] },
   { path: '**', redirectTo: 'login' },
 ];
