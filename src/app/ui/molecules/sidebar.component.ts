@@ -10,7 +10,7 @@ import { LucideFiles, LucideLogOut, LucideSparkles } from '@lucide/angular';
     <aside class="flex h-dvh min-h-0 flex-col gap-8 overflow-y-auto border-r border-line bg-white p-6 max-[780px]:h-auto max-[780px]:min-h-0 max-[780px]:overflow-visible">
       <div class="flex items-center gap-2 text-lg font-black"><svg lucideSparkles [size]="18" class="text-brand"></svg><span>Studio</span></div>
       <nav aria-label="Navegação principal" class="grid gap-1">
-        <a routerLink="/pages" routerLinkActive="bg-brand/10 text-brand" class="flex items-center gap-2 rounded-xl p-3 font-bold text-muted no-underline hover:bg-brand/10 hover:text-brand"><svg lucideFiles [size]="16"></svg> Minhas páginas</a><a routerLink="/skills" routerLinkActive="bg-brand/10 text-brand" class="flex items-center gap-2 rounded-xl p-3 font-bold text-muted no-underline hover:bg-brand/10 hover:text-brand">✦ Skills</a>
+        <a routerLink="/pages" routerLinkActive="bg-brand/10 text-brand" class="flex items-center gap-2 rounded-xl p-3 font-bold text-muted no-underline hover:bg-brand/10 hover:text-brand"><svg lucideFiles [size]="16"></svg> Minhas páginas</a><a routerLink="/skills" routerLinkActive="bg-brand/10 text-brand" class="flex items-center gap-2 rounded-xl p-3 font-bold text-muted no-underline hover:bg-brand/10 hover:text-brand">✦ Skills</a><a routerLink="/design-systems" routerLinkActive="bg-brand/10 text-brand" class="flex items-center gap-2 rounded-xl p-3 font-bold text-muted no-underline hover:bg-brand/10 hover:text-brand">◈ Design systems</a>
       </nav>
       <div class="grid min-w-0 gap-1">
         <p class="m-0 text-[.65rem] font-black tracking-widest text-slate-400">PÁGINAS RECENTES</p>

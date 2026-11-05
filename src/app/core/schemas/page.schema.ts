@@ -1,4 +1,5 @@
 export interface SkillSummary { id: string; slug: string; name: string; description: string; category: string; }
+export interface DesignSystemSummary { id: string; slug: string; name: string; description: string; category: string; tokens: Record<string, any>; }
 
 export type PageLifecycleStatus = 'draft' | 'generating' | 'failed' | 'published' | 'unpublished' | string;
 

@@ -4,7 +4,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { finalize, switchMap, take, takeWhile, timer } from 'rxjs';
 import { GenerationsRepository } from '../../core/repositories/generations.repository';
 import { GenerationStatus } from '../../core/schemas/generation.schema';
-import { SkillSummary } from '../../core/schemas/page.schema';
+import { DesignSystemSummary, SkillSummary } from '../../core/schemas/page.schema';
 import { ButtonComponent } from '../../ui/atoms/button.component';
 import { input, output } from '@angular/core';
 
@@ -22,9 +22,10 @@ import { input, output } from '@angular/core';
       <div><label for="tone">Tom de voz</label><input id="tone" formControlName="tone" /></div>
       <div><label for="visual-direction">Direção visual</label><textarea id="visual-direction" formControlName="visual_direction" rows="3" placeholder="Ex.: minimalista, premium, fundo claro, detalhes azuis"></textarea></div>
       <div><label for="reference-urls">Referências visuais (uma URL por linha)</label><textarea id="reference-urls" formControlName="reference_urls" rows="3" placeholder="https://exemplo.com/referencia"></textarea></div>
-      <div><label for="product-images">Imagens do produto (PNG, JPEG ou WebP)</label><input id="product-images" type="file" accept="image/png,image/jpeg,image/webp" multiple (change)="uploadImages($event)" /><div class="flex flex-wrap gap-3">@for (image of uploadedImages(); track image) { <img class="h-20 w-20 rounded-xl object-cover" [src]="image" alt="Imagem enviada do produto" /> }</div><p class="text-xs text-muted">Até 5 MB por imagem. {{ uploadedImages().length }} imagem(ns) adicionada(s).</p>@if (uploadError()) { <p class="error" role="alert">{{ uploadError() }}</p> }</div>
+      <div><label for="product-images">Imagens do produto (PNG, JPEG ou WebP)</label><input id="product-images" type="file" accept="image/png,image/jpeg,image/webp" multiple (change)="uploadImages($event)" /><div class="flex flex-wrap gap-3">@for (image of uploadedImages(); track image) { <div class="group relative"><img class="h-20 w-20 rounded-xl object-cover" [src]="image" alt="Imagem enviada do produto" /><button type="button" class="absolute inset-0 hidden rounded-xl bg-black/60 text-xs font-bold text-white group-hover:block" (click)="removeImage(image)" aria-label="Excluir imagem">Excluir</button></div> }</div><p class="text-xs text-muted">Até 5 MB por imagem. {{ uploadedImages().length }} imagem(ns) adicionada(s).</p>@if (uploadError()) { <p class="error" role="alert">{{ uploadError() }}</p> }</div>
       <div><label for="image-urls">URLs de imagens adicionais</label><textarea id="image-urls" formControlName="image_urls" rows="2" placeholder="https://cdn.exemplo.com/produto.jpg"></textarea></div>
-      <fieldset><legend>Skills de geração</legend><div class="grid gap-2">@for (skill of skills(); track skill.slug) { <label class="flex gap-2"><input type="checkbox" [checked]="selectedSkills().includes(skill.slug)" (change)="toggleSkill(skill.slug)" /> <span><strong>{{ skill.name }}</strong> — {{ skill.description }}</span></label> }</div></fieldset>
+      <div><label for="design-system">Design system</label><select id="design-system" formControlName="design_system_slug"><option value="">Escolha um sistema visual</option>@for (system of designSystems(); track system.slug) { <option [value]="system.slug">{{ system.name }} — {{ system.description }}</option> }</select></div>
+      <fieldset class="grid gap-3"><legend class="font-bold">Skills de geração</legend><p class="text-sm text-muted">Escolha até {{ maxSkills }} orientações. A combinação aparece na geração.</p><div class="grid gap-3 md:grid-cols-2">@for (skill of skills(); track skill.slug) { <label class="flex cursor-pointer gap-3 rounded-xl border border-line p-3 transition-colors has-[:checked]:border-brand has-[:checked]:bg-brand/5"><input class="mt-1" type="checkbox" [checked]="selectedSkills().includes(skill.slug)" [disabled]="!selectedSkills().includes(skill.slug) && selectedSkills().length >= maxSkills" (change)="toggleSkill(skill.slug)" /><span><strong>{{ skill.name }}</strong><span class="ml-2 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-muted">{{ skill.category }}</span><br /><span class="text-sm text-muted">{{ skill.description }}</span></span></label> }</div><p class="text-xs text-muted" aria-live="polite">{{ selectedSkills().length }}/{{ maxSkills }} selecionadas@if (selectedSkills().length === maxSkills) { · limite atingido }</p></fieldset>
       @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
       @if (status(); as current) { <p class="status" role="status">Status: {{ current.status }}</p> }
       <app-button type="submit" [disabled]="form.invalid || loading()">{{ loading() ? 'Enviando…' : submitLabel() }}</app-button>
@@ -43,9 +44,14 @@ export class GenerationFormComponent {
   protected readonly uploadError = signal<string | null>(null);
   protected readonly uploadedImages = signal<string[]>([]);
   protected readonly skills = signal<SkillSummary[]>([]);
+  protected readonly designSystems = signal<DesignSystemSummary[]>([]);
   protected readonly selectedSkills = signal<string[]>([]);
+  protected readonly maxSkills = 5;
   protected readonly status = signal<GenerationStatus | null>(null);
-  constructor() { this.repository.skills().subscribe({ next: (skills) => this.skills.set(skills) }); }
+  constructor() {
+    this.repository.skills().subscribe({ next: (skills) => this.skills.set(skills) });
+    this.repository.designSystems().subscribe({ next: (systems) => this.designSystems.set(systems) });
+  }
 
   toggleSkill(slug: string) { this.selectedSkills.update((selected) => selected.includes(slug) ? selected.filter((item) => item !== slug) : [...selected, slug]); }
 
@@ -60,7 +66,12 @@ export class GenerationFormComponent {
     visual_direction: [''],
     reference_urls: [''],
     image_urls: [''],
+    design_system_slug: [''],
   });
+
+  removeImage(url: string) {
+    this.repository.deleteImage(url).subscribe({ next: () => this.uploadedImages.update((images) => images.filter((image) => image !== url)), error: () => this.uploadError.set('Não foi possível excluir a imagem.') });
+  }
 
   uploadImages(event: Event) {
     const input = event.target as HTMLInputElement;
