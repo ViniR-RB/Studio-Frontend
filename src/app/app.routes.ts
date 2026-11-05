@@ -9,6 +9,7 @@ export const routes: Routes = [
     { path: 'pages', loadComponent: () => import('./pages/pages-page.component').then((m) => m.PagesPageComponent) },
     { path: 'pages/:slug', loadComponent: () => import('./pages/page-detail-page.component').then((m) => m.PageDetailPageComponent) },
     { path: 'skills', loadComponent: () => import('./pages/skills-page.component').then((m) => m.SkillsPageComponent) },
+    { path: 'design-systems', loadComponent: () => import('./pages/design-systems-page.component').then((m) => m.DesignSystemsPageComponent) },
   ] },
   { path: '**', redirectTo: 'login' },
 ];

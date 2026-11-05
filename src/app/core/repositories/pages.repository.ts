@@ -7,6 +7,7 @@ export class PagesRepository {
   private readonly api = inject(ApiHttp);
 
   list() { return this.api.get<PageSummary[]>('/pages'); }
+  delete(slug: string) { return this.api.delete<void>(`/pages/${encodeURIComponent(slug)}`); }
   briefing(slug: string) { return this.api.get<PageBriefing>(`/pages/${encodeURIComponent(slug)}/briefing`); }
   status(jobId: string) { return this.api.get<{ job_id: string; status: string; error: string | null; slug: string | null; version_id?: string | null }>(`/generations/${encodeURIComponent(jobId)}`); }
   updateBriefing(slug: string, request: PageBriefing) { return this.api.put<PageBriefing>(`/pages/${encodeURIComponent(slug)}/briefing`, request); }

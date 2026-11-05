@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import { finalize } from 'rxjs';
 import { Router } from '@angular/router';
 import { PagesRepository } from '../core/repositories/pages.repository';
 import { PageSummary } from '../core/schemas/page.schema';
@@ -17,7 +18,7 @@ import { RouterLink } from '@angular/router';
         <button class="flex items-center gap-2 rounded-xl bg-brand px-4 py-3 font-extrabold text-white hover:opacity-90" type="button" (click)="create()"><svg lucideFilePlus2 [size]="17"></svg><span>Nova página</span></button>
       </div>
       <div class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4">
-        @for (page of pages(); track page.id) { <a class="grid cursor-pointer gap-2 rounded-2xl border border-line bg-white p-5 text-left text-ink hover:border-brand" [routerLink]="['/pages', page.slug]"><strong>{{ page.slug }}</strong><span class="text-sm text-muted">{{ page.status }}</span></a> } @empty { <p>Nenhuma página publicada ainda.</p> }
+        @for (page of pages(); track page.id) { <article class="grid gap-3 rounded-2xl border border-line bg-white p-5 text-left text-ink"><a class="grid gap-2 no-underline" [routerLink]="['/pages', page.slug]"><strong>{{ page.slug }}</strong><span class="text-sm text-muted">{{ page.status }}</span></a><button class="rounded-xl border border-red-200 px-3 py-2 text-sm font-bold text-red-700 hover:bg-red-50" type="button" [disabled]="deleting() === page.slug" (click)="remove(page.slug)">{{ deleting() === page.slug ? 'Removendo…' : 'Remover página' }}</button></article> } @empty { <p>Nenhuma página publicada ainda.</p> }
       </div>
       <app-modal #createModal title="Nova página" [showConfirm]="false"><app-generation-form (created)="refreshAndClose($event)" /></app-modal>
     </section>
@@ -28,10 +29,16 @@ export class PagesPageComponent {
   private readonly repository = inject(PagesRepository);
   private readonly router = inject(Router);
   protected readonly pages = signal<PageSummary[]>([]);
+  protected readonly deleting = signal<string | null>(null);
   private readonly createModal = viewChild<ModalComponent>('createModal');
 
   constructor() { this.refresh(); }
   create() { this.createModal()?.open(); }
   refreshAndClose(slug: string) { this.refresh(); this.createModal()?.close(); this.router.navigate(['/pages', slug]); }
+  remove(slug: string) {
+    if (!window.confirm(`Remover a página ${slug}? Essa ação não pode ser desfeita.`)) return;
+    this.deleting.set(slug);
+    this.repository.delete(slug).pipe(finalize(() => this.deleting.set(null))).subscribe({ next: () => this.refresh() });
+  }
   private refresh() { this.repository.list().subscribe({ next: (pages) => this.pages.set(pages) }); }
 }

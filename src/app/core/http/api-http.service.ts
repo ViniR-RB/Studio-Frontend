@@ -29,4 +29,8 @@ export class ApiHttp {
   post<T>(path: string, body: unknown, context?: HttpContext): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${path}`, body, { context });
   }
+
+  delete<T>(path: string, context?: HttpContext): Observable<T> {
+    return this.http.delete<T>(`${this.baseUrl}${path}`, { context });
+  }
 }
