@@ -28,6 +28,7 @@ export interface PageBriefing {
   reference_urls: string[];
   image_urls: string[];
   skill_slugs: string[];
+  design_system_slug?: string | null;
 }
 
 export interface PageVersion {
